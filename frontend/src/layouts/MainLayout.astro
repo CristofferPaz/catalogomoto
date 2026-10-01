@@ -1,0 +1,21 @@
+---
+import '../styles/global.css';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+const { title = "SABINO'S MOTORCYCLES" } = Astro.props;
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#E31F1A" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="promo-strip bg-power-ink px-4 py-4 text-center text-sm font-bold tracking-wide text-power-soft md:py-5 md:text-lg">Adquiere tu moto en SABINO'S MOTORCYCLES <span class="promo-strip-detail">· más pan, más vino, más Sabino</span></div>
+    <Header />
+    <main><slot /></main>
+    <Footer />
+  </body>
+</html>

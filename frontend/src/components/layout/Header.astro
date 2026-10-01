@@ -1,0 +1,24 @@
+---
+---
+<header class="border-b border-power-gunmetal bg-power-obsidian text-power-soft">
+  <div class="container-power flex min-h-20 items-center justify-between gap-6">
+    <a href="/" class="flex items-center gap-2" aria-label="SABINO'S MOTORCYCLES inicio">
+      <span class="grid h-10 w-10 place-items-center rounded-full border-4 border-power-red text-xl font-black text-power-red">↯</span>
+      <span class="font-display text-2xl font-bold tracking-wide text-power-red">SABINO'S <span class="text-power-soft">MOTORCYCLES</span></span>
+    </a>
+    <nav class="hidden items-center gap-7 text-sm font-semibold md:flex" aria-label="Navegación principal">
+      <a class="hover:text-power-red" href="/">Inicio</a>
+      <a class="hover:text-power-red" href="/motos">Motos</a>
+      <a class="hover:text-power-red" href="/login">Administración</a>
+    </nav>
+    <button id="menu-toggle" class="text-sm font-bold uppercase md:hidden" aria-expanded="false">Menú</button>
+  </div>
+  <nav id="mobile-menu" class="container-power hidden border-t border-power-gunmetal bg-power-obsidian py-4 md:hidden" aria-label="Navegación móvil">
+    <div class="flex flex-col gap-3 text-sm font-semibold"><a href="/">Inicio</a><a href="/motos">Motos</a><a href="/login">Administración</a></div>
+  </nav>
+</header>
+<script>
+  const button = document.querySelector('#menu-toggle');
+  const menu = document.querySelector('#mobile-menu');
+  button?.addEventListener('click', () => { const open = !menu?.classList.toggle('hidden'); button.setAttribute('aria-expanded', String(open)); });
+</script>

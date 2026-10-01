@@ -1,0 +1,22 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+---
+<MainLayout title="Administración · SABINO'S MOTORCYCLES">
+  <section class="container-power py-12">
+    <div class="mb-10 flex flex-col justify-between gap-4 border-b border-zinc-200 pb-8 sm:flex-row sm:items-end"><div><p class="text-sm font-bold uppercase tracking-[.2em] text-power-red">Panel privado</p><h1 class="mt-2 text-5xl">Administrar motos</h1><p id="admin-user" class="mt-2 text-sm text-zinc-500"></p></div><button id="logout" class="button-power button-outline">Cerrar sesión</button></div>
+    <div><div class="mb-5 flex flex-wrap items-end justify-between gap-3"><h2 class="text-3xl">Catálogo actual</h2><div class="flex gap-2"><a href="/admin/motos/nueva" class="button-power">Registrar moto</a><a href="/motos" class="button-power button-outline">Ver catálogo</a></div></div><span id="admin-count" class="text-sm text-zinc-500"></span><p id="admin-error" class="mb-4 hidden bg-red-50 p-3 text-sm text-red-700"></p><div id="admin-list" class="mt-5 space-y-3"><p class="text-sm text-zinc-500">Cargando motos...</p></div></div>
+  </section>
+</MainLayout>
+<script>
+  import { api } from '../../lib/api';
+  import { clearAuth, getAdminUser, getToken } from '../../lib/auth/storage';
+  import { imageFor, displayCategory } from '../../types/moto.types';
+  const usuario = getAdminUser();
+  if (!getToken()) window.location.replace('/login');
+  const user = document.querySelector('#admin-user'); if (usuario && user) user.textContent = `Sesión iniciada como ${usuario}`;
+  const list = document.querySelector('#admin-list'); const count = document.querySelector('#admin-count'); const error = document.querySelector('#admin-error');
+  const render = (motos: any[]) => { if (count) count.textContent = `${motos.length} modelos`; if (list) list.innerHTML = motos.map((moto) => `<article class="flex items-center gap-4 border border-power-gunmetal bg-power-graphite p-3"><img src="${imageFor(moto)}" alt="${moto.modelo}" class="h-16 w-20 object-cover"><div class="min-w-0 flex-1"><p class="font-display text-2xl uppercase text-power-soft">${moto.modelo}</p><p class="text-xs text-power-muted">${displayCategory(moto.categoria)} · ${moto.stock} en stock · Bs. ${Number(moto.precio).toLocaleString('es-BO')}</p></div><a href="/admin/motos/editar?id=${moto.identificador}" class="text-sm font-bold text-power-red hover:underline">Editar</a></article>`).join(''); };
+  const load = async () => { try { const response = await api.listMotos(); render(response.data); } catch (err) { if (error) { error.textContent = err instanceof Error ? err.message : 'No se pudo cargar el catálogo.'; error.classList.remove('hidden'); } } };
+  document.querySelector('#logout')?.addEventListener('click', async () => { try { await api.logout(); } finally { clearAuth(); window.location.href = '/login'; } });
+  load();
+</script>

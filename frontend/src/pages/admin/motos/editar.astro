@@ -1,0 +1,16 @@
+---
+import MainLayout from '../../../layouts/MainLayout.astro';
+import MotoForm from '../../../components/motos/MotoForm.astro';
+---
+<MainLayout title="Editar moto · SABINO'S MOTORCYCLES">
+  <section class="container-power max-w-3xl py-12"><a href="/admin" class="text-sm font-bold text-power-red">← Volver al panel</a><h1 class="mt-4 text-5xl text-power-soft">Editar moto</h1><p id="edit-error" class="mt-3 hidden bg-red-50 p-3 text-sm text-red-700"></p><div class="mt-8 border-t-4 border-power-red bg-power-graphite p-6 shadow-sm ring-1 ring-power-gunmetal"><MotoForm /></div></section>
+</MainLayout>
+<script>
+  import { api } from '../../../lib/api';
+  import { getToken } from '../../../lib/auth/storage';
+  if (!getToken()) window.location.replace('/login');
+  const error = document.querySelector('#edit-error');
+  const id = Number(new URLSearchParams(window.location.search).get('id'));
+  if (!Number.isInteger(id) || id <= 0) { if (error) { error.textContent = 'El identificador de la moto no es válido.'; error.classList.remove('hidden'); } }
+  else api.listMotos().then(({ data }) => { const moto = data.find((item) => item.identificador === id); if (!moto) throw new Error('La moto no existe.'); window.dispatchEvent(new CustomEvent('edit-moto', { detail: moto })); }).catch((err) => { if (error) { error.textContent = err instanceof Error ? err.message : 'No se pudo cargar la moto.'; error.classList.remove('hidden'); } });
+</script>

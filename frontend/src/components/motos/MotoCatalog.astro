@@ -1,0 +1,53 @@
+---
+---
+<section class="container-power py-12" id="catalogo">
+  <div class="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+    <div><p class="text-sm font-bold uppercase tracking-[.2em] text-power-red">Catálogo SABINO'S</p><h1 class="mt-2 text-5xl md:text-6xl">Elegí tu próxima moto</h1><p class="mt-2 max-w-xl text-zinc-600">Modelos de 135 a 250 cc para cada forma de andar.</p></div>
+    <p id="catalog-count" class="text-sm font-semibold text-zinc-500"></p>
+  </div>
+  <form id="filters-form" class="mb-8 grid gap-3 bg-power-graphite p-4 sm:grid-cols-2 lg:grid-cols-5" aria-label="Filtros del catálogo">
+    <label class="text-xs font-bold uppercase text-power-muted">Categoría<select name="categoria" class="mt-1 w-full border border-power-gunmetal bg-power-ink px-3 py-2 text-sm text-power-soft outline-none focus:border-power-red"><option value="">Todas</option><option value="Automaticas">Automáticas</option><option value="Aventura">Aventura</option><option value="Deportiva">Deportivas</option><option value="Scoter">Scooter</option><option value="utilitarias">Utilitarias</option></select></label>
+    <div class="flex flex-wrap items-center gap-2"><button class="button-power" type="submit">Filtrar modelos</button><button id="clear-filters" class="button-power button-outline" type="button">Mostrar todos</button></div>
+  </form>
+  <p id="catalog-error" class="mb-6 hidden bg-red-50 p-4 text-sm text-red-700"></p>
+  <div id="catalog-loading" class="py-16 text-center text-sm text-zinc-500">Cargando modelos...</div>
+  <div id="catalog-grid" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"></div>
+  <div id="catalog-empty" class="hidden py-16 text-center text-zinc-500">No encontramos modelos con esos filtros.</div>
+</section>
+<script>
+  import { api } from '../../lib/api';
+  import { displayCategory, imageFor } from '../../types/moto.types';
+  import { fallbackMotos } from '../../data/catalog-fallback';
+  const form = document.querySelector<HTMLFormElement>('#filters-form');
+  const grid = document.querySelector('#catalog-grid');
+  const loading = document.querySelector('#catalog-loading');
+  const empty = document.querySelector('#catalog-empty');
+  const error = document.querySelector('#catalog-error');
+  const count = document.querySelector('#catalog-count');
+  const escape = (value: string) => value.replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char] ?? char));
+  const render = (motos: any[]) => {
+    if (grid) grid.innerHTML = motos.map((moto) => `<article class="group overflow-hidden bg-power-graphite shadow-sm ring-1 ring-power-gunmetal transition hover:-translate-y-1 hover:shadow-xl"><div class="relative aspect-[4/3] overflow-hidden bg-power-ink"><img src="${imageFor(moto)}" alt="${escape(moto.modelo)}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy"><span class="absolute left-3 top-3 bg-power-red px-3 py-1 text-xs font-bold uppercase text-white">${escape(displayCategory(moto.categoria))}</span></div><div class="p-5"><p class="text-xs font-semibold uppercase tracking-widest text-power-muted">${moto.cilindrada} cc</p><h2 class="mt-1 font-display text-3xl uppercase text-power-soft">${escape(moto.modelo)}</h2><p class="mt-3 text-lg font-bold text-power-red">Bs. ${Number(moto.precio).toLocaleString('es-BO')}</p><p class="mt-2 min-h-10 text-sm text-power-muted">${escape(moto.descripcion ?? 'Descubre este modelo SABINO\'S MOTORCYCLES.')}</p></div></article>`).join('');
+    empty?.classList.toggle('hidden', motos.length > 0); count && (count.textContent = `${motos.length} modelos`);
+  };
+  const applyFallbackFilters = () => {
+    const data = [...fallbackMotos];
+    const values = new FormData(form ?? undefined);
+    const categoria = String(values.get('categoria') ?? '');
+    return data.filter((moto) => !categoria || moto.categoria === categoria);
+  };
+  const load = async () => {
+    loading?.classList.remove('hidden'); error?.classList.add('hidden');
+    try {
+      const params = new URLSearchParams();
+      new FormData(form ?? undefined).forEach((value, key) => { if (value) params.set(key, String(value)); });
+      const response = await api.listMotos(params.toString() ? `?${params}` : ''); render(response.data);
+    } catch (err) {
+      render(applyFallbackFilters());
+      if (error) { error.textContent = 'No se pudo conectar con el backend. Mostrando el catálogo oficial local.'; error.classList.remove('hidden'); }
+    }
+    finally { loading?.classList.add('hidden'); }
+  };
+  form?.addEventListener('submit', (event) => { event.preventDefault(); load(); });
+  document.querySelector('#clear-filters')?.addEventListener('click', () => { form?.reset(); load(); });
+  load();
+</script>

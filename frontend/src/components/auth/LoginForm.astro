@@ -1,0 +1,25 @@
+---
+---
+<form id="login-form" class="space-y-5">
+  <div><label for="usuario" class="text-sm font-semibold">Usuario</label><input id="usuario" name="usuario" autocomplete="username" maxlength="15" class="mt-2 w-full border border-zinc-300 px-4 py-3 outline-none focus:border-power-red" /></div>
+  <div><label for="contrasena" class="text-sm font-semibold">Contraseña</label><input id="contrasena" name="contrasena" type="password" autocomplete="current-password" maxlength="60" class="mt-2 w-full border border-zinc-300 px-4 py-3 outline-none focus:border-power-red" /></div>
+  <p id="login-error" class="hidden bg-red-50 p-3 text-sm text-red-700"></p>
+  <button id="login-submit" type="submit" class="button-power w-full">Ingresar</button>
+</form>
+<script>
+  import { loginSchema } from '../../schemas/auth.schema';
+  import { api } from '../../lib/api';
+  import { saveAuth } from '../../lib/auth/storage';
+  const form = document.querySelector<HTMLFormElement>('#login-form');
+  const error = document.querySelector('#login-error');
+  const button = document.querySelector<HTMLButtonElement>('#login-submit');
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault(); error?.classList.add('hidden');
+    const result = loginSchema.safeParse(Object.fromEntries(new FormData(form)));
+    if (!result.success) { if (error) { error.textContent = result.error.issues[0]?.message ?? 'Revisa los datos.'; error.classList.remove('hidden'); } return; }
+    if (button) { button.disabled = true; button.textContent = 'Ingresando...'; }
+    try { const response = await api.login(result.data); saveAuth(response.token, response.usuario); window.location.href = '/admin'; }
+    catch (err) { if (error) { error.textContent = err instanceof Error ? err.message : 'No se pudo iniciar sesión.'; error.classList.remove('hidden'); } }
+    finally { if (button) { button.disabled = false; button.textContent = 'Ingresar'; } }
+  });
+</script>

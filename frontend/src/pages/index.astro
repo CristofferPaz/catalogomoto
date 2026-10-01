@@ -1,0 +1,15 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import MotoCatalog from '../components/motos/MotoCatalog.astro';
+---
+<MainLayout title="SABINO'S MOTORCYCLES · Catálogo de motos">
+  <section class="hero-shell text-white">
+    <div class="hero-stage container-power">
+      <div class="hero-photo hero-photo-left"><span class="hero-photo-label">Pasión</span><img src="/images/hero/hero-left.png" alt="SABINO'S MOTORCYCLES" /></div>
+      <div class="hero-copy"><p class="hero-kicker">SABINO'S MOTORCYCLES</p><h1>Adquiere<br /><span>tu moto</span></h1><p class="hero-description">Más pan, más vino, más Sabino. Modelos pensados para moverte con libertad, potencia y respaldo.</p><div class="hero-benefits"><div><strong>Crédito directo</strong><span>Aprobación rápida</span></div><div><strong>20 cuotas</strong><span>En todos los modelos</span></div><div><strong>1 año</strong><span>De garantía</span></div></div><a class="button-power hero-button" href="/motos">Conocé las motos <span>→</span></a></div>
+      <div class="hero-photo hero-photo-right"><span class="hero-photo-label">Libertad</span><img src="/images/hero/hero-right.png" alt="SABINO'S MOTORCYCLES" /></div>
+      <div class="hero-orbit hero-orbit-one"></div><div class="hero-orbit hero-orbit-two"></div>
+    </div>
+  </section>
+  <MotoCatalog />
+</MainLayout>

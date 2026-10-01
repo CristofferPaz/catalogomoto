@@ -1,0 +1,39 @@
+---
+---
+<form id="moto-form" class="grid gap-4 sm:grid-cols-2">
+  <input id="moto-id" type="hidden" />
+  <label class="text-sm font-semibold">Modelo<input name="modelo" required maxlength="50" class="mt-1 w-full border border-zinc-300 px-3 py-2 outline-none focus:border-power-red" placeholder="BROZZ-250" /></label>
+  <label class="text-sm font-semibold">Categoría<select name="categoria" required class="mt-1 w-full border border-power-gunmetal bg-power-ink px-3 py-2 text-power-soft outline-none focus:border-power-red"><option value="Aventura">Aventura</option><option value="Automaticas">Automáticas</option><option value="Deportiva">Deportivas</option><option value="Scoter">Scooter</option><option value="utilitarias">Utilitarias</option></select></label>
+  <label class="text-sm font-semibold">Cilindrada<input name="cilindrada" type="number" min="0" required class="mt-1 w-full border border-zinc-300 px-3 py-2 outline-none focus:border-power-red" /></label>
+  <label class="text-sm font-semibold">Precio<input name="precio" type="number" min="0" step="0.01" required class="mt-1 w-full border border-zinc-300 px-3 py-2 outline-none focus:border-power-red" /></label>
+  <label class="text-sm font-semibold">Stock<input name="stock" type="number" min="0" step="1" required class="mt-1 w-full border border-zinc-300 px-3 py-2 outline-none focus:border-power-red" /></label>
+  <label class="text-sm font-semibold">Imagen URL o ruta local<input name="imagenLink" type="text" placeholder="/images/motos/SAB-INO150.webp" class="mt-1 w-full border border-zinc-300 px-3 py-2 outline-none focus:border-power-red" /></label>
+  <label class="text-sm font-semibold sm:col-span-2">Descripción<textarea name="descripcion" maxlength="500" rows="3" class="mt-1 w-full border border-zinc-300 px-3 py-2 outline-none focus:border-power-red"></textarea></label>
+  <div class="flex items-center gap-3 sm:col-span-2"><button id="moto-submit" class="button-power" type="submit">Guardar moto</button><button id="moto-cancel" class="button-power button-outline hidden" type="button">Cancelar edición</button></div>
+  <p id="moto-form-message" class="hidden sm:col-span-2 p-3 text-sm"></p>
+</form>
+<script>
+  import { api } from '../../lib/api';
+  import { motoSchema } from '../../schemas/moto.schema';
+  const form = document.querySelector<HTMLFormElement>('#moto-form');
+  const id = document.querySelector<HTMLInputElement>('#moto-id');
+  const submit = document.querySelector<HTMLButtonElement>('#moto-submit');
+  const cancel = document.querySelector<HTMLButtonElement>('#moto-cancel');
+  const message = document.querySelector('#moto-form-message');
+  const fields = (name: string) => form?.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+  const setMessage = (text: string, success = false) => { if (message) { message.textContent = text; message.className = `sm:col-span-2 p-3 text-sm ${success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`; } };
+  const reset = () => { form?.reset(); if (id) id.value = ''; cancel?.classList.add('hidden'); if (submit) submit.textContent = 'Guardar moto'; };
+  const edit = (moto: any) => { if (id) id.value = String(moto.identificador); for (const key of ['modelo', 'categoria', 'cilindrada', 'precio', 'stock', 'imagenLink', 'descripcion']) { const field = fields(key); if (field) field.value = moto[key] ?? ''; } cancel?.classList.remove('hidden'); if (submit) submit.textContent = 'Actualizar moto'; window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  window.addEventListener('edit-moto', (event) => edit((event as CustomEvent).detail));
+  cancel?.addEventListener('click', reset);
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const raw = Object.fromEntries(new FormData(form));
+    const parsed = motoSchema.safeParse({ ...raw, marca: 'Power Motorcycle' });
+    if (!parsed.success) { setMessage(parsed.error.issues[0]?.message ?? 'Revisa los datos.'); return; }
+    if (submit) { submit.disabled = true; submit.textContent = 'Guardando...'; }
+    try { if (id?.value) await api.updateMoto(Number(id.value), parsed.data); else await api.createMoto(parsed.data); setMessage(id?.value ? 'Moto actualizada correctamente.' : 'Moto registrada correctamente.', true); reset(); window.dispatchEvent(new Event('motos-updated')); }
+    catch (err) { setMessage(err instanceof Error ? err.message : 'No se pudo guardar la moto.'); }
+    finally { if (submit) { submit.disabled = false; submit.textContent = id?.value ? 'Actualizar moto' : 'Guardar moto'; } }
+  });
+</script>

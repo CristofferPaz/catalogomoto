@@ -1,0 +1,11 @@
+---
+import MainLayout from '../../../layouts/MainLayout.astro';
+import MotoForm from '../../../components/motos/MotoForm.astro';
+---
+<MainLayout title="Registrar moto · SABINO'S MOTORCYCLES">
+  <section class="container-power max-w-3xl py-12"><a href="/admin" class="text-sm font-bold text-power-red">← Volver al panel</a><h1 class="mt-4 text-5xl text-power-soft">Registrar moto</h1><div class="mt-8 border-t-4 border-power-red bg-power-graphite p-6 shadow-sm ring-1 ring-power-gunmetal"><MotoForm /></div></section>
+</MainLayout>
+<script>
+  import { getToken } from '../../../lib/auth/storage';
+  if (!getToken()) window.location.replace('/login');
+</script>
