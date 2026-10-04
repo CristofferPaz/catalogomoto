@@ -2,7 +2,8 @@
 
 /* La contraseña corresponde a sabino007232 y fue generada con bcrypt, 8 saltos. */
 INSERT INTO administrador (usuario, contrasena)
-VALUES ('sabino007', '$2b$08$rEvAwvuxiOlBjwo4FPLHu.XpoS4fRxECvleVKNrPOGeT3gD/4Z4om');
+VALUES ('sabino007', '$2b$08$rEvAwvuxiOlBjwo4FPLHu.XpoS4fRxECvleVKNrPOGeT3gD/4Z4om'), 
+       ('feresdev', '$2b$08$EOeZPOsEyuokysrQU1sOH.yMX9F.cKbmxwL5vIiMjFUq9ibopPv6');
 
 INSERT INTO moto
     (modelo, marca, categoria, cilindrada, precio, imagenlink, stock, descripcion)
